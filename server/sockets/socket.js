@@ -1,42 +1,27 @@
-const { io } = require('../server');
+const { io } = require("../server");
+const { Usuario } = require("../classes/usuarios");
 
+const usuarios = new Usuario();
 
-io.on('connection', (client) => {
+io.on("connection", (client) => {
+  client.on("entrarChat", (data, callback) => {
+    if (!data.nombre) {
+      return callback({ error: true, mensaje: "El nombre es necesario" });
+    }
 
-    console.log('Usuario conectado');
+    let personas = usuarios.agregarPersona(client.id, data.nombre);
 
-    client.emit('enviarMensaje', {
-        usuario: 'Administrador',
-        mensaje: 'Bienvenido a esta aplicación'
+    client.broadcast.emit("listPersonas", usuarios.obtenerPersonas());
+    callback(personas);
+  });
+
+  client.on("disconnect", () => {
+    let personaBorrada = usuarios.eliminarPersona(client.id);
+
+    client.broadcast.emit("crearMensaje", {
+      usuario: "Administrador",
+      mensaje: `${personaBorrada.nombre} abandono el chat`,
     });
-
-
-
-    client.on('disconnect', () => {
-        console.log('Usuario desconectado');
-    });
-
-    // Escuchar el cliente
-    client.on('enviarMensaje', (data, callback) => {
-
-        console.log(data);
-
-        client.broadcast.emit('enviarMensaje', data);
-
-
-        // if (mensaje.usuario) {
-        //     callback({
-        //         resp: 'TODO SALIO BIEN!'
-        //     });
-
-        // } else {
-        //     callback({
-        //         resp: 'TODO SALIO MAL!!!!!!!!'
-        //     });
-        // }
-
-
-
-    });
-
+    client.broadcast.emit("listPersonas", usuarios.obtenerPersonas());
+  });
 });
