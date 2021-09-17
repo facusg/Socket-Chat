@@ -15,7 +15,7 @@ io.on("connection", (client) => {
 
     client.broadcast
       .to(data.sala)
-      .emit("listPersonas", usuarios.obtenerPersonasPorSala(data.sala));
+      .emit("listaPersona", usuarios.obtenerPersonasPorSala(data.sala));
 
     callback(usuarios.obtenerPersonasPorSala(data.sala));
   });
@@ -41,7 +41,7 @@ io.on("connection", (client) => {
     client.broadcast
       .to(personaBorrada.sala)
       .emit(
-        "listPersonas",
+        "listaPersona",
         usuarios.obtenerPersonasPorSala(personaBorrada.sala)
       );
   });
